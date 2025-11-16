@@ -57,4 +57,26 @@ ON FIS.SalesTerritoryKey = dst.SalesTerritoryKey
 GROUP BY dst.SalesTerritoryRegion
 ORDER BY SUM(SalesAmount) DESC;
 
+-- Zadatak 16: MIN i MAX Agregacija
+-- Zadatak: Pronađi najnižu i najvišu list cenu (ListPrice) za sve proizvode (DimProduct).
+-- Prikaži oba rezultata u jednom upitu sa aliasima MinPrice i MaxPrice.
 
+SELECT
+       ROUND(MIN(ListPrice), 2) AS 'Min Price',
+       ROUND(MAX(ListPrice), 2) AS 'Max Price'
+FROM DimProduct;
+
+-- Zadatak 17: Kombinacija Agregacija i HAVING
+-- Zadatak: Za svaki grad (City) u tabeli DimCustomer, izračunaj prosečan godišnji prihod (YearlyIncome) kupaca.
+-- Prikaži samo gradove gde je prosečan prihod veći od 60000. Sortiraj po prosečnom prihodu opadajuće.
+
+SELECT
+    dg.City,
+    AVG(YearlyIncome) AS 'Average Income'
+FROM DimCustomer AS dc
+LEFT JOIN
+    DimGeography AS dg
+    ON dc.GeographyKey = dg.GeographyKey
+GROUP BY dg.City
+HAVING AVG(YearlyIncome) > 60000
+ORDER BY  AVG(YearlyIncome) DESC;
