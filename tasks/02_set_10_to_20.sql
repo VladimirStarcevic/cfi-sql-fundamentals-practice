@@ -80,3 +80,27 @@ LEFT JOIN
 GROUP BY dg.City
 HAVING AVG(YearlyIncome) > 60000
 ORDER BY  AVG(YearlyIncome) DESC;
+
+-- Zadatak 18: LEN Funkcija
+-- Zadatak: Pronađi sve kupce (DimCustomer) čije ime (FirstName) ima tačno 4 slova. Prikaži ime i prezime.
+
+SELECT
+    CONCAT(FirstName, ' ', LastName) AS [Customer Name]
+FROM DimCustomer
+WHERE LEN(FirstName) = 4;
+
+-- Zadatak 19: SUBSTRING Funkcija
+-- Zadatak: Iz tabele DimProduct,
+-- prikaži prvih 10 proizvoda sa kolonama: puno ime proizvoda i nova kolona ShortName koja sadrži prva 3 slova imena proizvoda.
+
+SELECT TOP(10)
+    EnglishProductName AS [Full Product Name],
+    SUBSTRING(EnglishProductName,1,3) AS [Short Name]
+FROM DimProduct;
+
+-- Zadatak 20: CONCAT ili + Operator
+-- Zadatak: Kreiraj listu prvih 20 zaposlenih (DimEmployee) sa kolonom FullName koja kombinuje FirstName i LastName sa razmakom između.
+SELECT TOP (20)
+    CONCAT(FirstName, ' ', LastName) AS [Full Name]
+FROM
+    DimEmployee;
