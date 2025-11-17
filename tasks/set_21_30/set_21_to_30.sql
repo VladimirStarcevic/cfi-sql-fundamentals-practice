@@ -61,3 +61,61 @@ SELECT TOP 10
     LEFT(EnglishProductName, 5) AS [Prefix],
     RIGHT(EnglishProductName, 5) AS [Sufix]
 FROM DimProduct;
+
+-- Zadatak 26: REPLACE Funkcija
+-- Zadatak: U tabeli DimProduct, za prvih 20 proizvoda, prikaži ime proizvoda gde je svaki razmak (' ') zamenjen crticom ('-').
+
+SELECT TOP 20
+    REPLACE(EnglishProductName, ' ', '-') AS [Prdoduct Name]
+FROM
+    DimProduct;
+
+-- Zadatak 27: Ugneždene Agregacije
+-- Koji je najveći broj kupaca koji žive u istom gradu?
+-- Naznaka: Da bi ovo rešio, prvo moraš da saznaš koliko kupaca ima u svakom gradu.
+-- Zatim, iz te liste rezultata, treba da pronađeš najveći broj.
+-- Razmisli kako možeš rezultat jednog upita (broj kupaca po gradu)
+-- iskoristiti kao izvor podataka za drugi upit (pronađi maksimum).
+
+SELECT
+    MAX([Number of Customer]) AS [Customer statistics]
+FROM
+    (
+        SELECT
+            COUNT(dc.CustomerKey) AS [Number of Customer]
+        FROM
+            DimCustomer AS dc
+                INNER JOIN
+            DimGeography AS dg ON dc.GeographyKey = dg.GeographyKey
+        GROUP BY
+            dg.City
+    ) AS CityStats;
+
+-- Zadatak 29: TOP sa PERCENT
+-- Zadatak: Prikaži top 5% proizvoda (DimProduct) sa najvećom list cenom (ListPrice). Prikaži ime proizvoda i cenu.
+SELECT TOP (5) PERCENT
+    EnglishProductName,
+    ListPrice
+FROM
+    DimProduct
+ORDER BY
+    ListPrice DESC;
+
+
+-- Zadatak 30: Kombinacija Više Uslova sa Agregacijom
+-- Za svaki proizvod boje (Color) u tabeli DimProduct,
+-- izračunaj prosečnu, minimalnu i maksimalnu list cenu.
+-- Prikaži samo boje gde je prosečna cena između 500 i 1500. Sortiraj po prosečnoj ceni opadajuće.
+
+SELECT
+    Color,
+    AVG(ListPrice) AS [Average Price],
+    MAX(ListPrice) AS [MAX Price],
+    MIN(ListPrice) AS [Min Price]
+FROM
+    DimProduct
+WHERE Color IS NOT NULL
+GROUP BY Color
+HAVING AVG(ListPrice) BETWEEN 500 AND 1500
+ORDER BY [Average Price] DESC;
+
