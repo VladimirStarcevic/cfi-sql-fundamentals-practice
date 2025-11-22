@@ -448,3 +448,196 @@
 2. **SELEKTUJ** **BROJ** redova iz `FactInternetSales` ili 0 ako nema.
 3. **IZ** `DimCustomer` **LEVO SPOJI SA** `FactInternetSales`.
 4. **GRUPIŠI PO** kolonama kupca.
+
+Naravno. Evo preostalih zadataka od 35 do 50, sa istom strukturom (zadatak, logika, hintovi).
+
+Kopiraj ovo i sačuvaj u svoj `sql_practice_50.md` fajl kako bi imao kompletnu listu.
+
+---
+
+### **Zadatak 35: `LEFT JOIN` za Pronalaženje "Siročića"**
+**Zadatak:** Pronađi sve proizvode (`DimProduct`) koji **nikada nisu prodati** (tj. ne postoje u `FactInternetSales`). Prikaži samo `EnglishProductName`.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ** `EnglishProductName`.
+2. **IZ** `DimProduct` **LEVO SPOJI SA** `FactInternetSales`.
+3. **NA OSNOVU** `ProductKey`.
+4. **FILTRIRAJ** rezultat **GDE JE** neka kolona iz `FactInternetSales` (npr. `SalesOrderNumber`) **JESTE NULL**.
+
+**Hintovi / Funkcije:** `SELECT`, `FROM DimProduct AS p`, `LEFT JOIN FactInternetSales AS f ON p.ProductKey = f.ProductKey`, `WHERE f.SalesOrderNumber IS NULL`.
+
+---
+
+### **Zadatak 36: `RIGHT JOIN` (Vežba Koncepta)**
+**Zadatak:** Ponovi Zadatak 35, ali ovog puta koristi `RIGHT JOIN`. (Cilj je samo da vidiš kako se sintaksa menja).
+
+**Logika / Pseudo Kod:**
+1. Sada je `FactInternetSales` **leva** tabela.
+2. **DESNO JE SPOJI SA** `DimProduct`.
+3. Ostala logika je ista.
+
+**Hintovi / Funkcije:** `SELECT`, `FROM FactInternetSales AS f`, `RIGHT JOIN DimProduct AS p ON f.ProductKey = p.ProductKey`, `WHERE f.SalesOrderNumber IS NULL`.
+
+---
+
+### **Zadatak 37: `SELF JOIN` (Hijerarhija)**
+**Zadatak:** Za svakog zaposlenog (`DimEmployee`) koji ima menadžera, prikaži puno ime zaposlenog i puno ime njegovog menadžera. Ograniči na prvih 20 rezultata.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ TOP 20**.
+2. **SPOJI** tabelu `DimEmployee` samu sa sobom, koristeći dva različita aliasa (npr. `e` za zaposlenog i `m` za menadžera).
+3. **IZ** `DimEmployee` kao `e` **SPOJI SA** `DimEmployee` kao `m`.
+4. **NA OSNOVU** ključa koji povezuje zaposlenog i menadžera (`e.ParentEmployeeKey = m.EmployeeKey`).
+
+**Hintovi / Funkcije:** `SELECT TOP (20)`, `CONCAT(...) AS EmployeeName`, `CONCAT(...) AS ManagerName`, `FROM DimEmployee AS e`, `INNER JOIN DimEmployee AS m ON e.ParentEmployeeKey = m.EmployeeKey`.
+
+---
+
+### **Zadatak 38: `UNION ALL`**
+**Zadatak:** Kreiraj jedinstvenu listu svih email adresa iz tabela `DimCustomer` i `DimEmployee`.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ** `EmailAddress` **IZ** `DimCustomer`.
+2. **DODAJ REDOVE ISPOD** sa **`UNION`**.
+3. **SELEKTUJ** `EmailAddress` **IZ** `DimEmployee`.
+
+**Hintovi / Funkcije:** `SELECT EmailAddress FROM DimCustomer UNION SELECT EmailAddress FROM DimEmployee`. (`UNION` automatski uklanja duplikate, `UNION ALL` ne).
+
+---
+
+### **Zadatak 39: `CROSS JOIN` (Oprezno!)**
+**Zadatak:** Generiši sve moguće kombinacije boja (`Color`) i veličina (`Size`) iz tabele `DimProduct`. Prikaži jedinstvene kombinacije.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ JEDINSTVENE** kombinacije.
+2. **IZ** (**PODUPIT** koji vraća jedinstvene boje) **UKRSTI SA** (**PODUPIT** koji vraća jedinstvene veličine).
+
+**Hintovi / Funkcije:** `SELECT DISTINCT c.Color, s.Size FROM (SELECT DISTINCT Color FROM DimProduct WHERE Color IS NOT NULL) AS c CROSS JOIN (SELECT DISTINCT Size FROM DimProduct WHERE Size IS NOT NULL) AS s;`
+
+---
+
+### **Zadatak 40: `JOIN` sa Više Uslova u `ON` Klauzuli**
+**Zadatak:** (Teorijski) Zamisli da imaš dve tabele, `TabelaA` i `TabelaB`, i želiš da ih spojiš samo ako se poklapaju **i `ID` i `Datum`**. Kako bi izgledala `ON` klauzula?
+
+**Logika / Pseudo Kod:**
+1. **IZ** `TabelaA` **SPOJI SA** `TabelaB`.
+2. **NA OSNOVU** `A.ID = B.ID` **I ZAJEDNO** `A.Datum = B.Datum`.
+
+**Hintovi / Funkcije:** `... ON a.ID = b.ID AND a.Datum = b.Datum`.
+
+---
+
+## **SET 5: Napredni SQL za Analitiku (Zadaci 41-50)**
+
+### **Zadatak 41: `VIEW` Osnove**
+**Zadatak:** Kreiraj `VIEW` (pogled) pod nazivom `v_CustomerSales` koji sadrži `CustomerKey`, puno ime kupca, email i ukupan iznos potrošen na internetu (`SUM(SalesAmount)`).
+
+**Logika / Pseudo Kod:**
+1. **KREIRAJ POGLED** `v_CustomerSales` **KAO**.
+2. **SELEKTUJ**... (tvoj upit iz Zadatka 31, ali bez `TOP`).
+
+**Hintovi / Funkcije:** `CREATE VIEW v_CustomerSales AS SELECT c.CustomerKey, ... FROM DimCustomer c JOIN FactInternetSales f ON ... GROUP BY ...;`
+
+---
+
+### **Zadatak 42: Korišćenje `VIEW`-a**
+**Zadatak:** Sada, koristeći `VIEW` `v_CustomerSales` koji si upravo kreirao, pronađi top 10 kupaca.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ TOP 10** *.
+2. **IZ POGLEDA** `v_CustomerSales`.
+3. **SORTIRAJ PO** ukupnom iznosu opadajuće.
+
+**Hintovi / Funkcije:** `SELECT TOP (10) * FROM v_CustomerSales ORDER BY TotalSpent DESC;`
+
+---
+
+### **Zadatak 43: Subquery u `SELECT` Klauzuli (Scalar Subquery)**
+**Zadatak:** Za svakog kupca (`DimCustomer`), prikaži njegovo ime i novu kolonu `TotalSpent` koja sadrži njegov ukupan iznos internet prodaje. Ograniči na prvih 20 kupaca. **Nemoj koristiti `JOIN`**.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ TOP 20** `FirstName`, `LastName`.
+2. **SELEKTUJ** (**PODUPIT** koji računa `SUM(SalesAmount)` iz `FactInternetSales` **GDE JE** `CustomerKey` jednak `CustomerKey`-u iz spoljnog upita) kao `TotalSpent`.
+3. **IZ TABELE** `DimCustomer`.
+
+**Hintovi / Funkcije:** `SELECT TOP (20) ..., (SELECT SUM(f.SalesAmount) FROM FactInternetSales f WHERE f.CustomerKey = c.CustomerKey) AS TotalSpent FROM DimCustomer c;`
+
+---
+
+### **Zadatak 44: `EXISTS` Operator**
+**Zadatak:** Ponovi Zadatak 22 koristeći `EXISTS` umesto `IN`. Pronađi sve kupce koji su napravili bar jednu internet kupovinu.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ** * **IZ** `DimCustomer`.
+2. **GDE POSTOJI** (**PODUPIT** koji vraća bilo šta iz `FactInternetSales` **GDE JE** `CustomerKey` jednak `CustomerKey`-u iz spoljnog upita).
+
+**Hintovi / Funkcije:** `SELECT * FROM DimCustomer c WHERE EXISTS (SELECT 1 FROM FactInternetSales f WHERE f.CustomerKey = c.CustomerKey);`
+
+---
+
+### **Zadatak 45: `Window Function` - `ROW_NUMBER()`**
+**Zadatak:** Za svakog kupca, prikaži sve njegove internet prodaje. Dodaj kolonu `PurchaseNumber` koja broji kupovine od 1 pa naviše za svakog kupca, sortirano po datumu porudžbine.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ** `CustomerKey`, `SalesOrderNumber`, `OrderDate`.
+2. **DODAJ** **`ROW_NUMBER()` PREKO (PARTICIONIŠI PO `CustomerKey` SORTIRAJ PO `OrderDate`)** kao `PurchaseNumber`.
+3. **IZ** `FactInternetSales`.
+
+**Hintovi / Funkcije:** `SELECT ..., ROW_NUMBER() OVER (PARTITION BY CustomerKey ORDER BY OrderDate) AS PurchaseNumber FROM FactInternetSales;`
+
+---
+
+### **Zadatak 46: `Window Function` - `SUM()`**
+**Zadatak:** Za svaku internet prodaju, prikaži `SalesOrderNumber`, `SalesAmount`, i novu kolonu `RunningTotal` koja prikazuje kumulativni zbir prodaje za tog kupca do tog datuma.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ** `CustomerKey`, `SalesOrderNumber`, `OrderDate`, `SalesAmount`.
+2. **DODAJ** **`SUM(SalesAmount)` PREKO (PARTICIONIŠI PO `CustomerKey` SORTIRAJ PO `OrderDate`)** kao `RunningTotal`.
+3. **IZ** `FactInternetSales`.
+
+**Hintovi / Funkcije:** `SELECT ..., SUM(SalesAmount) OVER (PARTITION BY CustomerKey ORDER BY OrderDate) AS RunningTotal FROM FactInternetSales;`
+
+---
+
+### **Zadatak 47: `Window Function` - `RANK()`**
+**Zadatak:** Rangiraj proizvode (`DimProduct`) unutar svake boje (`Color`) na osnovu njihove cene (`ListPrice`), od najskupljeg ka najjeftinijem. Prikaži ime proizvoda, boju, cenu i rang.
+
+**Logika / Pseudo Kod:**
+1. **SELEKTUJ** `EnglishProductName`, `Color`, `ListPrice`.
+2. **DODAJ** **`RANK()` PREKO (PARTICIONIŠI PO `Color` SORTIRAJ PO `ListPrice` DESC)** kao `PriceRank`.
+3. **IZ** `DimProduct`.
+
+**Hintovi / Funkcije:** `SELECT ..., RANK() OVER (PARTITION BY Color ORDER BY ListPrice DESC) AS PriceRank FROM DimProduct WHERE Color IS NOT NULL;`
+
+---
+
+### **Zadatak 48: Common Table Expression (CTE)**
+**Zadatak:** Ponovi Zadatak 27 koristeći `CTE`. Prvo definiši CTE `CityStats` koji računa broj kupaca po gradu, a zatim selektuj `MAX` iz tog CTE-a.
+
+**Logika / Pseudo Kod:**
+1. **SA** `CityStats` **KAO (** ... tvoj podupit iz Zadatka 27 ... **)**
+2. **SELEKTUJ** `MAX(CityCount)` **IZ** `CityStats`.
+
+**Hintovi / Funkcije:** `WITH CityStats AS (SELECT COUNT(*) AS CityCount FROM ... GROUP BY ...) SELECT MAX(CityCount) FROM CityStats;`
+
+---
+
+### **Zadatak 49: `PIVOT` (T-SQL specifično)**
+**Zadatak:** (Veoma napredno) Kreiraj izveštaj koji prikazuje ukupan `SalesAmount` za svaku teritoriju (`SalesTerritoryRegion`), ali tako da godine (2011, 2012, 2013) budu prikazane kao **kolone**, a ne kao redovi.
+
+**Hintovi / Funkcije:** Ovo zahteva kompleksnu `PIVOT` sintaksu. `SELECT ... FROM (...) AS SourceTable PIVOT (SUM(SalesAmount) FOR OrderYear IN ([2011], [2012], [2013])) AS PivotTable;`
+
+---
+
+### **Zadatak 50: Finalni Izazov (Kombinacija Svega)**
+**Zadatak:** Pronađi 5 kupaca koji su potrošili najviše u kategoriji proizvoda 'Bikes'. Prikaži njihovo puno ime, email, i ukupan iznos potrošen samo na bicikle.
+
+**Logika / Pseudo Kod:**
+1. **SPOJI** `FactInternetSales` sa `DimProduct` da dobiješ `ProductSubcategoryKey`.
+2. **SPOJI** rezultat sa `DimProductSubcategory` da dobiješ `ProductCategoryKey`.
+3. **SPOJI** rezultat sa `DimProductCategory` da filtriraš samo 'Bikes'.
+4. **SPOJI** rezultat sa `DimCustomer` da dobiješ ime kupca.
+5. **GRUPIŠI PO** kupcu i **SABERI** `SalesAmount`.
+6. **SORTIRAJ** i uzmi **TOP 5**.
+
+**Hintovi / Funkcije:** Ovo je kompleksan `JOIN` preko 5 tabela sa `WHERE`, `GROUP BY`, `SUM`, `ORDER BY` i `TOP`. Savršen test svega naučenog.
